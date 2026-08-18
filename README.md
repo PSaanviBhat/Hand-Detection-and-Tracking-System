@@ -25,7 +25,7 @@ A complete, feature-rich real-time hand detection and tracking system built for 
 
 ## Setup Instructions
 
-1.  **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+1.  **Prerequisites**: Ensure you have [Node.js](https://nodejs.org/) and Lucide React installed on your machine.
 2.  **Clone/Download**: Download this repository and navigate into the project directory in your terminal.
 3.  **Install Dependencies**:
     ```bash
