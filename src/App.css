@@ -335,6 +335,34 @@ body {
   letter-spacing: 0.05em;
 }
 
+.drawing-indicator {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background-color: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 20;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  color: #38bdf8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.drawing-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;

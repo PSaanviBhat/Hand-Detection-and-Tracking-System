@@ -19,6 +19,11 @@ export const detectGesture = (landmarks) => {
     return "Peace Sign";
   }
 
+  // Pointing: Only Index is extended. Used for Air Drawing.
+  if (isIndexExtended && !isMiddleExtended && !isRingExtended && !isPinkyExtended && !isThumbExtended) {
+    return "Pointing";
+  }
+
   // Open Palm: All fingers extended.
   if (isThumbExtended && isIndexExtended && isMiddleExtended && isRingExtended && isPinkyExtended) {
     return "Open Palm";

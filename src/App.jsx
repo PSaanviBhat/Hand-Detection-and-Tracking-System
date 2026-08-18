@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
-import { drawHandLandmarks } from './utils/drawing';
+import { drawHandLandmarks, drawAirLines } from './utils/drawing';
 import { detectGesture } from './utils/gestures';
-import { Camera, CameraOff, Video, Square, Layers, Square as SquareIcon, Disc, Download, Settings, Activity } from 'lucide-react';
+import { Camera, CameraOff, Video, Square, Layers, Square as SquareIcon, Disc, Download, Settings, Activity, PenTool } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -18,10 +18,15 @@ function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState(null);
   const [fps, setFps] = useState(0);
+  const [isAirDrawingEnabled, setIsAirDrawingEnabled] = useState(false);
   
   const viewModeRef = useRef('bounding_box');
   const framesRef = useRef(0);
   const lastTimeRef = useRef(performance.now());
+  const isAirDrawingEnabledRef = useRef(false);
+  const linesRef = useRef([]);
+  const isDrawingRef = useRef(false);
+  const lastPointTimeRef = useRef(0);
 
   const setViewMode = (mode) => {
     setViewModeState(mode);
@@ -157,6 +162,8 @@ function App() {
       if (video.currentTime > 0 && !video.paused && !video.ended) {
         const results = handLandmarker.detectForVideo(video, performance.now());
         
+        let currentlyPointing = false;
+        
         if (results.landmarks) {
           results.landmarks.forEach((landmarks, index) => {
             let handName = "Hand";
@@ -167,7 +174,40 @@ function App() {
             const label = gesture ? `${handName} #${index + 1}: ${gesture}` : `${handName} #${index + 1}`;
             
             drawHandLandmarks(ctx, landmarks, canvas.width, canvas.height, viewModeRef.current, label);
+            
+            // Air Drawing Logic (Only primary hand index 0 controls drawing)
+            if (isAirDrawingEnabledRef.current && index === 0) {
+              const nowTime = performance.now();
+              const tip = landmarks[8]; // Index finger tip
+              
+              if (gesture === "Pointing") {
+                currentlyPointing = true;
+                lastPointTimeRef.current = nowTime;
+                
+                if (!isDrawingRef.current) {
+                  linesRef.current.push([{x: tip.x, y: tip.y}]);
+                  isDrawingRef.current = true;
+                } else {
+                  linesRef.current[linesRef.current.length - 1].push({x: tip.x, y: tip.y});
+                }
+              } else if (isDrawingRef.current && (nowTime - lastPointTimeRef.current < 250)) {
+                // Grace period (250ms) to prevent line breaks during micro-flickers
+                currentlyPointing = true;
+                linesRef.current[linesRef.current.length - 1].push({x: tip.x, y: tip.y});
+              } else if (gesture === "Open Palm") {
+                // Erase board
+                linesRef.current = [];
+              }
+            }
           });
+          
+          if (!currentlyPointing) {
+            isDrawingRef.current = false;
+          }
+          
+          if (isAirDrawingEnabledRef.current) {
+            drawAirLines(ctx, linesRef.current, canvas.width, canvas.height);
+          }
         }
       }
     }
@@ -233,6 +273,24 @@ function App() {
           </div>
 
           <div className="tool-group">
+            <h3>Interactive Tools</h3>
+            <div className="widget-box column">
+              <button 
+                onClick={() => {
+                  const newState = !isAirDrawingEnabled;
+                  setIsAirDrawingEnabled(newState);
+                  isAirDrawingEnabledRef.current = newState;
+                  if (!newState) linesRef.current = []; // Clear board when disabled
+                }} 
+                className={`widget-btn ${isAirDrawingEnabled ? 'record' : ''}`}
+              >
+                <PenTool size={18} />
+                <span>{isAirDrawingEnabled ? "Disable Air Drawing" : "Enable Air Drawing"}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="tool-group">
             <h3>Recording</h3>
             <div className="widget-box column">
               {!isRecording ? (
@@ -290,6 +348,12 @@ function App() {
               <div className="fps-counter">
                 <span className="fps-value">{fps}</span>
                 <span className="fps-label">FPS</span>
+              </div>
+            )}
+            
+            {isAirDrawingEnabled && (
+              <div className="drawing-indicator">
+                <span className="dot"></span> Air Drawing Active: Point to draw, Open Palm to erase
               </div>
             )}
             

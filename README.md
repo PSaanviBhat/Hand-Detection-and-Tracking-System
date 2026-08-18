@@ -1,6 +1,6 @@
 # Hand Detection and Tracking System
 
-A complete, feature-rich real-time hand detection and tracking system built for the Dheera AI Internship Assessment. It processes webcam video entirely in the browser using WebAssembly and GPU acceleration.
+A complete, feature-rich real-time hand detection and tracking system. It processes webcam video entirely in the browser using WebAssembly and GPU acceleration.
 
 ## Features Implemented
 
@@ -12,8 +12,11 @@ A complete, feature-rich real-time hand detection and tracking system built for 
     *   ✋ Open Palm
     *   👍 Thumbs Up
     *   ✊ Fist
+    *   👉 Pointing
+*   **Virtual Whiteboard (Air Drawing)**: Use your index finger as a virtual pen to draw glowing lines directly onto the live feed. Includes an "Open Palm" gesture shortcut to instantly erase the board.
+*   **Performance Metrics Dashboard**: A sleek, real-time FPS counter that tracks the performance of the client-side WebAssembly detection loop.
 *   **Dynamic Visualizations**: Toggle seamlessly between Skeleton mode, Bounding Box mode, and Heatmap mode.
-*   **Video Recording**: A highly complex composite canvas system allows users to seamlessly record the live feed with all visual overlays intact, and export it instantly as a `.webm` file.
+*   **Video Recording**: A highly complex composite canvas system allows users to seamlessly record the live feed with all visual overlays (including Air Drawings) intact, and export it instantly as a `.webm` file.
 *   **Premium UI**: A polished dark theme, glassmorphism panels, responsive layout, and beautiful iconography.
 
 ## Technology Stack
@@ -49,6 +52,7 @@ During the development of this project, AI coding assistants (like Google Antigr
 
 *   **Recording with Overlays**: Standard HTML `<video>` elements cannot be exported with HTML `<canvas>` overlays on top of them. To solve this, the raw webcam frames are mathematically mirrored and painted directly onto the canvas *underneath* the skeleton and labels on every single animation frame. This creates a single composited video stream that is fully recordable without losing any overlays or text readability!
 *   **Robust Gesture Recognition**: Simple distance checks (e.g. comparing Y coordinates) failed when the hand was rotated or tilted. Solved by implementing a geometric algorithm that compares the distance of the thumb tip to the center of the palm versus the thumb joint to the center of the palm, making the gesture engine completely rotation-invariant.
+*   **Air Drawing Flickering**: Computer vision models often momentarily lose confidence in a specific gesture for a microsecond due to lighting or micro-movements, causing drawn lines to abruptly break. Solved by implementing a 250ms "grace period" buffer that bridges micro-flickers, resulting in perfectly smooth, continuous strokes.
 
 ---
 

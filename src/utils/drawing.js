@@ -117,3 +117,30 @@ export const drawHandLandmarks = (ctx, landmarks, canvasWidth, canvasHeight, vie
     ctx.restore();
   }
 };
+
+export const drawAirLines = (ctx, lines, canvasWidth, canvasHeight) => {
+  if (!lines || lines.length === 0) return;
+  
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = "#38bdf8"; // Primary blue
+  
+  // Add a neon glow effect
+  ctx.shadowColor = "rgba(56, 189, 248, 0.8)";
+  ctx.shadowBlur = 10;
+
+  for (const line of lines) {
+    if (line.length < 2) continue; // Need at least 2 points to draw a line
+    
+    ctx.beginPath();
+    ctx.moveTo(line[0].x * canvasWidth, line[0].y * canvasHeight);
+    for (let i = 1; i < line.length; i++) {
+      ctx.lineTo(line[i].x * canvasWidth, line[i].y * canvasHeight);
+    }
+    ctx.stroke();
+  }
+  
+  ctx.restore();
+};
