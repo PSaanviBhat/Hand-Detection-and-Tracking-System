@@ -17,8 +17,11 @@ function App() {
   const [viewMode, setViewModeState] = useState('bounding_box');
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideoUrl, setRecordedVideoUrl] = useState(null);
+  const [fps, setFps] = useState(0);
   
   const viewModeRef = useRef('bounding_box');
+  const framesRef = useRef(0);
+  const lastTimeRef = useRef(performance.now());
 
   const setViewMode = (mode) => {
     setViewModeState(mode);
@@ -123,6 +126,15 @@ function App() {
 
   const predictWebcam = () => {
     if (!videoRef.current || !canvasRef.current || !handLandmarker) return;
+
+    // Calculate FPS
+    const now = performance.now();
+    framesRef.current++;
+    if (now - lastTimeRef.current >= 1000) {
+      setFps(framesRef.current);
+      framesRef.current = 0;
+      lastTimeRef.current = now;
+    }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -274,6 +286,13 @@ function App() {
 
         <div className="video-container">
           <div className="canvas-wrapper">
+            {isCameraOn && (
+              <div className="fps-counter">
+                <span className="fps-value">{fps}</span>
+                <span className="fps-label">FPS</span>
+              </div>
+            )}
+            
             <video 
               ref={videoRef} 
               className="hidden"
